@@ -37,12 +37,12 @@ jobs:
           done
       - run: supabase link --project-ref "$REF"
       - run: supabase db push --include-all --remote --yes # newer CLIs target the local stack and ask to confirm by default
-      - run: supabase functions deploy --project-ref "$REF"
+      - run: supabase functions deploy --project-ref "$REF" --yes
       - name: Function secrets (Gemini key, access code)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           APP_ACCESS_CODE: ${{ secrets.APP_ACCESS_CODE }}
-        run: supabase secrets set --project-ref "$REF" GEMINI_API_KEY="$GEMINI_API_KEY" APP_ACCESS_CODE="$APP_ACCESS_CODE" AI_PROVIDER=gemini
+        run: supabase secrets set --project-ref "$REF" --yes GEMINI_API_KEY="$GEMINI_API_KEY" APP_ACCESS_CODE="$APP_ACCESS_CODE" AI_PROVIDER=gemini
       - name: Auth -> anonymous accounts, Pages site URL
         run: |
           jq -n --arg url "$SITE_URL" '{ external_anonymous_users_enabled: true, site_url: $url, uri_allow_list: $url }' > auth.json
