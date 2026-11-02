@@ -1,10 +1,10 @@
 // S13 Détail recette : kcal par portion, ingrédients recalculés selon les portions, étapes, ajout au journal
 import { useEffect, useState } from 'react'
-import { ChefHat, Pencil, Star } from 'lucide-react'
+import { ChefHat, Pencil, ShoppingBasket, Star } from 'lucide-react'
 import { BottomSheet, Button, IconButton, Stepper, TextField } from '../ui.jsx'
-import { localDay, MEALS, mealForHour, parseNumber, recipeFor } from '../lib.js'
+import { localDay, MEALS, mealForHour, parseNumber, recipeFor, shoppingLines } from '../lib.js'
 import { t, tn } from '../i18n.js'
-import { addDiaryEntries, getRecipe, isFavorite, setFavorite } from '../data.js'
+import { addDiaryEntries, addShopping, getRecipe, isFavorite, setFavorite } from '../data.js'
 import { go } from '../App.jsx'
 import TopBar from './TopBar.jsx'
 import { RecipePhoto, tagLabel } from './recipeParts.jsx'
@@ -20,6 +20,7 @@ export default function RecipeDetail({ recipeId, q, notify }) {
   const [clientId, setClientId] = useState(() => crypto.randomUUID())
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(false)
+  const [shopping, setShopping] = useState(false)
 
   useEffect(() => {
     getRecipe(recipeId).then(x => { setR(x); setCookFor(x?.servings ?? 1) }).catch(() => setR(null))
@@ -38,6 +39,17 @@ export default function RecipeDetail({ recipeId, q, notify }) {
     const next = !fav
     setFav(next)
     try { await setFavorite({ recipe_id: r.id }, next) } catch { setFav(!next) }
+  }
+
+  async function toShopping() {
+    setShopping(true)
+    try {
+      await addShopping(shoppingLines(r, cookFor))
+      notify(`${r.recipe_ingredients.length} ingrédients ajoutés aux courses`, 'Voir', () => go('/shopping'))
+    } catch {
+      notify("L'ajout aux courses a échoué. Vérifie ta connexion.")
+    }
+    setShopping(false)
   }
 
   async function add() {
@@ -89,6 +101,10 @@ export default function RecipeDetail({ recipeId, q, notify }) {
             <li key={i.id}><span>{i.foods.name}</span><span>{Math.round(i.grams * scale)} g</span></li>
           ))}
         </ul>
+        <Button variant="secondary" block loading={shopping} onClick={toShopping}>
+          <ShoppingBasket size={18} aria-hidden="true" /> Ajouter à la liste de courses
+        </Button>
+        {r.source_url && <a className="muted" href={r.source_url} target="_blank" rel="noopener noreferrer">Voir la recette d'origine</a>}
       </section>
 
       {r.steps?.length > 0 && (

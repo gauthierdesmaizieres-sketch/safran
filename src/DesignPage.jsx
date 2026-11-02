@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { Barcode, BookOpen, Camera, ChartLine, ChevronLeft, ChevronRight, NotebookPen, SearchX, User } from 'lucide-react'
 import { BottomSheet, Button, CalorieRing, Chip, EmptyState, FoodRow, IconButton, MacroBar, MealCard, SearchField, Stepper, TabBar, TextField, Toast } from './ui.jsx'
+import { Avocado, Drumstick, Egg } from './FoodMotion.jsx'
 
 const tabs = [
   { id: 'diary', label: 'Journal', icon: NotebookPen },
@@ -16,6 +17,7 @@ export default function DesignPage() {
   const [chips, setChips] = useState({ vegan: true, lowcarb: false, quick: false })
   const [sheet, setSheet] = useState(false)
   const [tab, setTab] = useState('diary')
+  const [replay, setReplay] = useState(0)
 
   return (
     <div className="design">
@@ -116,6 +118,14 @@ export default function DesignPage() {
             <Button block onClick={() => setSheet(false)}>Enregistrer</Button>
           </div>
         </BottomSheet>
+      </section>
+
+      <section>
+        <h2>Aliments animés (prototype)</h2>
+        <div className="row" key={replay}>
+          <Egg /><Drumstick /><Avocado />
+        </div>
+        <Button variant="ghost" size="sm" onClick={() => setReplay(n => n + 1)}>Rejouer</Button>
       </section>
 
       <section>

@@ -156,3 +156,25 @@ export function scaleEntry(e, amount) {
   const f = old > 0 ? amount / old : 0
   return { kcal: Math.round(e.kcal * f), carbs: r1(e.carbs * f), protein: r1(e.protein * f), fat: r1(e.fat * f) }
 }
+
+// ---- recipe import + shopping list (S16, S17)
+
+// Android's share sheet fills title / text / url unevenly (Instagram puts the link in text): first http(s) link wins.
+export function sharedLink(params) {
+  for (const k of ['url', 'text', 'title']) {
+    const m = (params.get(k) ?? '').match(/https?:\/\/\S+/)
+    if (m) return m[0]
+  }
+  return null
+}
+
+// Shopping lines for n servings of a saved dish: "Riz blanc cuit · 200 g".
+export function shoppingLines(recipe, n) {
+  const f = recipe.servings > 0 ? n / recipe.servings : 1
+  return recipe.recipe_ingredients.map(i => `${i.foods.name} · ${Math.round(i.grams * f)} g`)
+}
+
+// Plain text for the share sheet (Keep, WhatsApp, SMS…): unchecked items only.
+export function shoppingText(items) {
+  return items.filter(i => !i.checked).map(i => `- ${i.text}`).join('\n')
+}

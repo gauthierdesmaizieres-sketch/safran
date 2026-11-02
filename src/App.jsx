@@ -12,6 +12,8 @@ import Recipes from './screens/Recipes.jsx'
 import RecipeDetail from './screens/RecipeDetail.jsx'
 import RecipeEdit from './screens/RecipeEdit.jsx'
 import Cook from './screens/Cook.jsx'
+import ImportRecipe from './screens/ImportRecipe.jsx'
+import Shopping from './screens/Shopping.jsx'
 import Onboarding from './screens/Onboarding.jsx'
 import { getActiveGoal } from './data.js'
 import Stub from './screens/Stub.jsx'
@@ -22,6 +24,7 @@ import { t } from './i18n.js'
 
 // Hash routes: #/diary?day=… | #/add/:meal?day=… | #/scan/:meal | #/review/:scanId | #/barcode/:meal | #/food/:id | #/new-food/:meal
 // #/goals (S01–S03 again from the profile) | #/recipes | #/recipe/new | #/recipe/:id | #/recipe/:id/edit | #/cook/:id?for=n
+// #/import?link=… (S16, also the Android share target, see main.jsx) | #/shopping (S17)
 // flow screens carry ?meal=…&day=… so the entry lands where the user started
 export function go(path) { location.hash = path }
 function parse() {
@@ -84,6 +87,8 @@ export default function App() {
         : <RecipeDetail key={param} recipeId={param} {...props} />
       break
     case 'cook': page = <Cook recipeId={param} {...props} />; tab = null; break
+    case 'import': page = <ImportRecipe key={route.q.get('link')} {...props} />; tab = null; break
+    case 'shopping': page = <Shopping {...props} />; tab = null; break
     case 'goals': page = <Onboarding {...props} />; tab = null; break
     case 'progress': page = <Stub title={t('Progrès')} ids="S18" />; break
     case 'profile': page = <Profile {...props} />; break

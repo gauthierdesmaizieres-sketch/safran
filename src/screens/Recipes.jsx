@@ -1,6 +1,7 @@
 // S12 Mes plats : liste, recherche, filtres
 import { useEffect, useState } from 'react'
-import { CookingPot, Plus, SearchX } from 'lucide-react'
+import { Link2, Plus, SearchX, ShoppingBasket } from 'lucide-react'
+import { Drumstick } from '../FoodMotion.jsx'
 import { Button, Chip, EmptyState, SearchField } from '../ui.jsx'
 import { recipeFor } from '../lib.js'
 import { t } from '../i18n.js'
@@ -30,6 +31,10 @@ export default function Recipes() {
         <h1>{t('Mes plats')}</h1>
         <Button size="sm" onClick={() => go('/recipe/new')}><Plus size={16} aria-hidden="true" /> {t('Nouveau plat')}</Button>
       </header>
+      <div className="row">
+        <Button size="sm" variant="secondary" onClick={() => go('/import')}><Link2 size={16} aria-hidden="true" /> Importer un lien</Button>
+        <Button size="sm" variant="secondary" onClick={() => go('/shopping')}><ShoppingBasket size={16} aria-hidden="true" /> Courses</Button>
+      </div>
 
       {error && (
         <div className="stack">
@@ -39,7 +44,7 @@ export default function Recipes() {
       )}
 
       {list?.length === 0 && (
-        <EmptyState icon={CookingPot} title={t("Aucun plat pour l'instant")}
+        <EmptyState icon={Drumstick} title={t("Aucun plat pour l'instant")}
           text={t('Crée tes plats maison une fois : leurs calories par portion sont calculées, et tu les ajoutes au journal en un geste.')}
           action={<Button onClick={() => go('/recipe/new')}>{t('Créer mon premier plat')}</Button>} />
       )}

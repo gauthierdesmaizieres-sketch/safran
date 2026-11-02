@@ -8,18 +8,33 @@ import { deleteRecipe, getRecipe, saveRecipe, searchFoods, uploadRecipePhoto } f
 import { go } from '../App.jsx'
 import TopBar from './TopBar.jsx'
 import { RecipePhoto, TAGS } from './recipeParts.jsx'
+import { DRAFT_KEY } from './ImportRecipe.jsx'
 
 const per100 = f => ({ kcal: f.kcal_100g, carbs: f.carbs_100g, protein: f.protein_100g, fat: f.fat_100g })
 
-export default function RecipeEdit({ recipeId, notify }) {
+// Draft left by S16 (ImportRecipe), read once: matched ingredients become rows, the rest wait to be picked.
+function takeDraft() {
+  try {
+    const d = JSON.parse(sessionStorage.getItem(DRAFT_KEY))
+    sessionStorage.removeItem(DRAFT_KEY)
+    return d
+  } catch { return null }
+}
+
+export default function RecipeEdit({ recipeId, q: route, notify }) {
   const isNew = !recipeId
+  const [imported] = useState(() => (isNew && route?.get('import') ? takeDraft() : null))
+  const [unmatched, setUnmatched] = useState(() => imported?.items.filter(i => !i.food) ?? [])
+  const [pending, setPending] = useState(null) // the unmatched ingredient being searched for
   const [loaded, setLoaded] = useState(isNew ? {} : undefined)
-  const [title, setTitle] = useState('')
-  const [servings, setServings] = useState(2)
-  const [minutes, setMinutes] = useState('')
+  const d = imported?.draft
+  const [title, setTitle] = useState(d?.title ?? '')
+  const [servings, setServings] = useState(d?.servings ?? 2)
+  const [minutes, setMinutes] = useState(d?.prep_minutes ?? '')
   const [tags, setTags] = useState([])
-  const [items, setItems] = useState([]) // [{ key, food, gramsText }]
-  const [stepsText, setStepsText] = useState('')
+  const [items, setItems] = useState(() => (imported?.items ?? []).filter(i => i.food)
+    .map(i => ({ key: crypto.randomUUID(), food: i.food, gramsText: String(i.grams ?? '') }))) // [{ key, food, gramsText }]
+  const [stepsText, setStepsText] = useState(d?.steps.join('\n') ?? '')
   const [photoPath, setPhotoPath] = useState(null)
   const [photoFile, setPhotoFile] = useState(null)
   const [preview, setPreview] = useState(null)
@@ -77,7 +92,7 @@ export default function RecipeEdit({ recipeId, notify }) {
       const path = photoFile ? await uploadRecipePhoto(photoFile) : photoPath
       const id = await saveRecipe({
         id: recipeId ?? null, title: title.trim(), photo_path: path, servings, prep_minutes: mins == null ? null : Math.round(mins), tags,
-        steps: stepsText.split('\n').map(s => s.trim()).filter(Boolean).map(text => ({ text })),
+        steps: stepsText.split('\n').map(s => s.trim()).filter(Boolean).map(text => ({ text })), source_url: imported?.source_url ?? null,
       }, rows.map(r => ({ food_id: r.food.id, grams: r.grams })))
       notify(isNew ? t('Plat créé') : t('Plat enregistré'))
       go(`/recipe/${id}`)
@@ -104,6 +119,7 @@ export default function RecipeEdit({ recipeId, notify }) {
   return (
     <div className="page">
       <TopBar title={isNew ? t('Nouveau plat') : t('Modifier le plat')} onBack={() => go(isNew ? '/recipes' : `/recipe/${recipeId}`)} />
+      {imported && <p className="muted">Importé et décodé par l'IA : vérifie les ingrédients et leurs poids.</p>}
 
       <input ref={fileRef} type="file" accept="image/*" hidden onChange={pickPhoto} />
       <button type="button" className="photo-pick" onClick={() => fileRef.current.click()} aria-label={preview || photoPath ? t('Changer la photo') : t('Ajouter une photo')}>
@@ -153,8 +169,25 @@ export default function RecipeEdit({ recipeId, notify }) {
             {found.length === 0 && <p className="muted">{t("Aucun aliment trouvé. Crée-le d'abord depuis le journal (Ajouter → Créer un aliment).")}</p>}
             {found.slice(0, 8).map(f => (
               <FoodRow key={f.id} name={f.name} detail={t('pour 100 g')} kcal={f.kcal_100g}
-                onClick={() => { setItems(xs => [...xs, { key: crypto.randomUUID(), food: f, gramsText: '100' }]); setQ('') }} />
+                onClick={() => {
+                  setItems(xs => [...xs, { key: crypto.randomUUID(), food: f, gramsText: String(pending?.grams ?? 100) }])
+                  if (pending) setUnmatched(xs => xs.filter(x => x !== pending))
+                  setPending(null)
+                  setQ('')
+                }} />
             ))}
+          </div>
+        )}
+        {unmatched.length > 0 && (
+          <div className="stack">
+            <p className="muted">Pas trouvés dans la base (non comptés) : touche-en un pour le chercher.</p>
+            <div className="unmatched">
+              {unmatched.map((u, k) => (
+                <Chip key={k} on={pending === u} onClick={() => { setPending(u); setQ(u.name) }}>
+                  {u.name}{u.quantity ? ` · ${u.quantity}` : ''}
+                </Chip>
+              ))}
+            </div>
           </div>
         )}
         {touched && errors.items && <p className="form-error" role="alert">{errors.items}</p>}
