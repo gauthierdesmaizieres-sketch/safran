@@ -12,6 +12,12 @@ insert into diary_entries (user_id, logged_on, meal, label, grams, kcal, method)
   values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', current_date, 'lunch', 'riz', 100, 130, 'search');
 insert into foods (owner_id, source, name, kcal_100g) values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'custom', 'Gâteau de mamie A', 400);
 insert into recipes (owner_id, title) values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Plat secret A');
+insert into shopping_items (user_id, text) values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '200 g riz');
+do $$ begin
+  insert into recipes (owner_id, title, source_url) values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'x', 'javascript:alert(1)');
+  raise exception 'non-http source_url accepted';
+exception when check_violation then null;
+end $$;
 do $$ begin assert (select count(*) from diary_entries) = 1, 'A sees own entry'; end $$;
 do $$ begin assert (select count(*) from search_foods('mamie')) = 1, 'A finds own food'; end $$;
 select set_config('test.a_recipe', (select id::text from recipes where title = 'Plat secret A'), true);
@@ -23,6 +29,12 @@ set local role authenticated;
 set local request.jwt.claims = '{"sub":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","role":"authenticated"}';
 do $$ begin assert (select count(*) from diary_entries) = 0, 'B reads A diary'; end $$;
 do $$ begin assert (select count(*) from photo_scans) = 0, 'B reads A scans'; end $$;
+do $$ begin assert (select count(*) from shopping_items) = 0, 'B reads A shopping list'; end $$;
+do $$ begin
+  insert into shopping_items (user_id, text) values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'fake');
+  raise exception 'B wrote into A shopping list';
+exception when insufficient_privilege then null;
+end $$;
 do $$ begin assert (select count(*) from recipes where owner_id is not null) = 0, 'B reads A recipe'; end $$;
 do $$ begin assert (select count(*) from search_foods('mamie')) = 0, 'B finds A food'; end $$;
 do $$ begin assert (select count(*) from foods where owner_id is null) > 0, 'B reads public foods'; end $$;

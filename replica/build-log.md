@@ -26,3 +26,6 @@ Tests : `node --test src/lib.test.js` (6 tests : jours locaux, calcul kcal, tota
 | Journal : modifier une entrée | 2026-10-21 | done | — | — |
 | S09 remplacer / ajouter | 2026-10-21 | done | — | — |
 | Import Ciqual 2025 | 2026-10-21 | done | mise à jour annuelle manuelle | en-têtes Excel avec retours à la ligne ; recherche refaite par mots (3000 aliments) ; nettoyage e2e qui supprimait les comptes d'un autre worker |
+| S16 Import recette | 2026-11-02 | partial | sites web (schema.org Recipe) ; vidéo YouTube réelle non testée en local (texte collé testé avec Gemini) | Instagram : aucune lecture possible sans app Meta validée → l'utilisateur colle la légende ; jamais de fetch d'URL arbitraire côté serveur (SSRF) |
+| S17 Liste de courses | 2026-11-02 | done | regrouper les doublons (2× « oignon ») | table et RLS existaient déjà dans l'init |
+| Animations aliments | 2026-11-02 | partial | prototype seulement (/?design), en attente de validation | — |

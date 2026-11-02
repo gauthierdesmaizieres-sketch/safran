@@ -18,6 +18,8 @@ export default defineConfig({
         scope: './',
         display: 'standalone',
         orientation: 'portrait',
+        // Installed PWA shows up in Android's share sheet; GET keeps it a plain navigation (no service worker code).
+        share_target: { action: './?share=1', method: 'GET', params: { title: 'title', text: 'text', url: 'url' } },
         theme_color: '#f9f2e5',
         background_color: '#f9f2e5',
         icons: [

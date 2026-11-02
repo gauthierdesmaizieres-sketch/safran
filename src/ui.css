@@ -126,6 +126,23 @@ button:disabled { cursor: default; opacity: .5; }
 
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+/* food motion prototype (src/FoodMotion.jsx): plays once, then rests; the global rule below freezes it */
+.food-motion { display: block; overflow: visible; }
+.food-motion path, .food-motion circle { stroke: var(--c-text); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.fm-white { fill: var(--c-surface); }
+.fm-yolk { fill: #f2b233; transform-origin: 33px 33px; animation: fm-pop 600ms var(--motion-ease) both; }
+.fm-shine { fill: var(--c-surface); stroke: none !important; }
+.fm-meat { fill: #c9772e; }
+.fm-bone { fill: var(--c-surface); }
+.fm-steam { fill: none; stroke: var(--c-text-muted) !important; animation: fm-steam 1.6s ease-out 2 both; }
+.fm-skin { fill: #3d6b35; }
+.fm-flesh { fill: #d8e59a; }
+.fm-pit { fill: #8a5a2b; transform-origin: 32px 40px; animation: fm-pop 500ms 150ms var(--motion-ease) both; }
+.fm-egg, .fm-avo { animation: fm-drop 450ms var(--motion-ease) both; }
+@keyframes fm-pop { 0% { transform: scale(.4); } 70% { transform: scale(1.12); } 100% { transform: scale(1); } }
+@keyframes fm-drop { from { transform: translateY(-8px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fm-steam { 0% { opacity: 0; transform: translateY(6px); } 40% { opacity: .9; } 100% { opacity: 0; transform: translateY(-6px); } }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
@@ -248,3 +265,13 @@ button:disabled { cursor: default; opacity: .5; }
 .picker { max-height: 70dvh; overflow-y: auto; }
 .review-edit .icon-btn { flex: none; }
 .credits { font-size: var(--fs-xs); } .credits a { color: inherit; }
+
+/* S17 shopping list */
+.shop-add { display: flex; align-items: flex-end; gap: var(--sp-3); }
+.shop-add .field { flex: 1; }
+.shop-list { list-style: none; margin: 0; padding: 0 var(--sp-4); }
+.shop-list li + li { border-top: 1px solid var(--c-border); }
+.shop-list label { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap-min); padding: var(--sp-2) 0; cursor: pointer; overflow-wrap: anywhere; }
+.shop-list input { width: 22px; height: 22px; flex: none; accent-color: var(--c-accent); }
+.shop-list .is-done span { text-decoration: line-through; color: var(--c-text-muted); }
+.unmatched { display: flex; flex-wrap: wrap; gap: var(--sp-2); }

@@ -181,7 +181,7 @@ export async function listRecipes() {
 
 export async function getRecipe(id) {
   const rows = must(await supabase.from('recipes')
-    .select(`${RECIPE_LIST}, owner_id, steps, recipe_ingredients(id, grams, position, foods(id, name, kcal_100g, carbs_100g, protein_100g, fat_100g))`)
+    .select(`${RECIPE_LIST}, owner_id, steps, source_url, recipe_ingredients(id, grams, position, foods(id, name, kcal_100g, carbs_100g, protein_100g, fat_100g))`)
     .eq('id', id).limit(1))
   const r = rows[0]
   if (r) r.recipe_ingredients.sort((a, b) => a.position - b.position)
@@ -210,4 +210,34 @@ export async function uploadRecipePhoto(file) {
 export async function photoUrl(path) {
   const { data } = await supabase.storage.from('photos').createSignedUrl(path, 3600)
   return data?.signedUrl ?? null
+}
+
+// ---- recipe import (S16) + shopping list (S17)
+
+// -> { draft: { title, servings, prep_minutes, ingredients: [{ name, quantity, grams }], steps }, source_url }
+// Throws Error(code): code | need_text | empty | video | not_recipe | busy | too_long | ai | network
+export async function importRecipe(url, text) {
+  const { data, error } = await supabase.functions.invoke('import-recipe', { body: { url, text }, headers: { 'x-app-code': getAccessCode() } })
+  if (error) {
+    const body = await error.context?.json?.().catch(() => null)
+    throw new Error(body?.error ?? 'network')
+  }
+  return data
+}
+
+export async function listShopping() {
+  return must(await supabase.from('shopping_items').select('id, text, checked').order('checked').order('created_at'))
+}
+
+export async function addShopping(texts) {
+  const user_id = await userId()
+  return must(await supabase.from('shopping_items').insert(texts.map(text => ({ user_id, text: text.slice(0, 200) }))).select('id, text, checked'))
+}
+
+export async function setShoppingChecked(id, checked) {
+  must(await supabase.from('shopping_items').update({ checked }).eq('id', id))
+}
+
+export async function deleteShopping(ids) {
+  must(await supabase.from('shopping_items').delete().in('id', ids))
 }

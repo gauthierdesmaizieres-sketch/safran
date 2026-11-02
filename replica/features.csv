@@ -18,7 +18,7 @@ Modifier / supprimer une entrée du journal,diary,must,yes,yes,"quantité et rep
 Détail recette avec recalcul selon nb de portions,recipes,should,yes,yes,S13
 Mode cuisine étape par étape (écran allumé + timer),recipes,should,yes,partial,S14 étapes + écran allumé (Wake Lock); pas de minuteur
 Recherche et filtres recettes (vegan low carb temps),recipes,should,yes,yes,S12 sur mes plats
-Import recette depuis une URL,recipes,should,yes,no,S16 MFP; parser schema.org Recipe
+Import recette depuis une URL,recipes,should,yes,partial,"S16 : YouTube lu par Gemini (API officielle), Instagram = légende collée (pas d'API sans app Meta validée); partage Android; schema.org des sites pas fait"
 Créer un plat à partir du scan photo,recipes,should,no,no,idée à nous: photo -> plat réutilisable
 Label nutritionnel complet (fibres sucres sel),logging,should,yes,yes,S10
 Suivi du poids + courbe,progress,should,yes,no,S18
@@ -27,7 +27,7 @@ Copier un repas d'un autre jour,diary,should,yes,no,
 Rappels de repas (notifications),notifications,should,yes,no,sans spam (plainte utilisateurs)
 Mode hors ligne du journal,diary,should,yes,no,sync quand réseau
 Export des données (CSV),settings,should,partial,no,les users exportent Yazio via outils tiers
-Liste de courses depuis recettes,recipes,could,yes,no,S17
+Liste de courses depuis recettes,recipes,could,yes,yes,"S17 interne (RLS) + partage texte"
 Catalogue de recettes maison,recipes,could,yes,no,pas de contenu écrit; S12 ne montre que mes plats
 Plans de repas générés selon objectif,recipes,could,yes,no,PRO Yazio / Premium+ MFP
 Sync Apple Health / Health Connect (pas activité),integrations,could,yes,no,API officielles

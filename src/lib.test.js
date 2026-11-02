@@ -95,3 +95,18 @@ test('scaleEntry scales frozen nutrients by grams or servings', () => {
   assert.deepEqual(scaleEntry({ grams: 180, kcal: 234, carbs: 51.5, protein: 4.9, fat: 0.5 }, 90), { kcal: 117, carbs: 25.8, protein: 2.5, fat: 0.3 })
   assert.deepEqual(scaleEntry({ grams: null, servings: 1.5, kcal: 480, carbs: 60, protein: 30, fat: 12 }, 1), { kcal: 320, carbs: 40, protein: 20, fat: 8 })
 })
+
+import { sharedLink, shoppingLines, shoppingText } from './lib.js'
+
+test('sharedLink finds the link wherever the share sheet put it', () => {
+  const p = s => new URLSearchParams(s)
+  assert.equal(sharedLink(p('url=https://youtu.be/dQw4w9WgXcQ')), 'https://youtu.be/dQw4w9WgXcQ')
+  assert.equal(sharedLink(p(`text=${encodeURIComponent('Regarde ça https://www.instagram.com/reel/C1x/?igsh=a b')}`)), 'https://www.instagram.com/reel/C1x/?igsh=a')
+  assert.equal(sharedLink(p('title=Recette&text=pas de lien')), null)
+})
+
+test('shoppingLines scales grams to the portions cooked; shoppingText skips checked', () => {
+  const r = { servings: 4, recipe_ingredients: [{ grams: 400, foods: { name: 'Riz' } }, { grams: 3, foods: { name: 'Sel' } }] }
+  assert.deepEqual(shoppingLines(r, 2), ['Riz · 200 g', 'Sel · 2 g'])
+  assert.equal(shoppingText([{ text: 'Riz', checked: false }, { text: 'Sel', checked: true }, { text: 'Œufs', checked: false }]), '- Riz\n- Œufs')
+})

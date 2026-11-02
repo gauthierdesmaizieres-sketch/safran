@@ -1,6 +1,6 @@
 // S12 Mes plats : liste, recherche, filtres
 import { useEffect, useState } from 'react'
-import { CookingPot, Plus, SearchX } from 'lucide-react'
+import { CookingPot, Link2, Plus, SearchX, ShoppingBasket } from 'lucide-react'
 import { Button, Chip, EmptyState, SearchField } from '../ui.jsx'
 import { recipeFor } from '../lib.js'
 import { listRecipes } from '../data.js'
@@ -29,6 +29,10 @@ export default function Recipes() {
         <h1>Mes plats</h1>
         <Button size="sm" onClick={() => go('/recipe/new')}><Plus size={16} aria-hidden="true" /> Nouveau plat</Button>
       </header>
+      <div className="row">
+        <Button size="sm" variant="secondary" onClick={() => go('/import')}><Link2 size={16} aria-hidden="true" /> Importer un lien</Button>
+        <Button size="sm" variant="secondary" onClick={() => go('/shopping')}><ShoppingBasket size={16} aria-hidden="true" /> Courses</Button>
+      </div>
 
       {error && (
         <div className="stack">
