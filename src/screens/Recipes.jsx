@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { CookingPot, Plus, SearchX } from 'lucide-react'
 import { Button, Chip, EmptyState, SearchField } from '../ui.jsx'
 import { recipeFor } from '../lib.js'
+import { t } from '../i18n.js'
 import { listRecipes } from '../data.js'
 import { go } from '../App.jsx'
 import { RecipePhoto, TAGS } from './recipeParts.jsx'
@@ -26,31 +27,31 @@ export default function Recipes() {
   return (
     <div className="page">
       <header className="food-head">
-        <h1>Mes plats</h1>
-        <Button size="sm" onClick={() => go('/recipe/new')}><Plus size={16} aria-hidden="true" /> Nouveau plat</Button>
+        <h1>{t('Mes plats')}</h1>
+        <Button size="sm" onClick={() => go('/recipe/new')}><Plus size={16} aria-hidden="true" /> {t('Nouveau plat')}</Button>
       </header>
 
       {error && (
         <div className="stack">
-          <p role="alert">Impossible de charger tes plats.</p>
-          <Button variant="secondary" onClick={load}>Réessayer</Button>
+          <p role="alert">{t('Impossible de charger tes plats.')}</p>
+          <Button variant="secondary" onClick={load}>{t('Réessayer')}</Button>
         </div>
       )}
 
       {list?.length === 0 && (
-        <EmptyState icon={CookingPot} title="Aucun plat pour l'instant"
-          text="Crée tes plats maison une fois : leurs calories par portion sont calculées, et tu les ajoutes au journal en un geste."
-          action={<Button onClick={() => go('/recipe/new')}>Créer mon premier plat</Button>} />
+        <EmptyState icon={CookingPot} title={t("Aucun plat pour l'instant")}
+          text={t('Crée tes plats maison une fois : leurs calories par portion sont calculées, et tu les ajoutes au journal en un geste.')}
+          action={<Button onClick={() => go('/recipe/new')}>{t('Créer mon premier plat')}</Button>} />
       )}
 
       {list?.length > 0 && (
         <>
-          <SearchField value={text} onChange={setText} label="Rechercher un plat" />
-          <div className="chips" role="group" aria-label="Filtres">
+          <SearchField value={text} onChange={setText} label={t('Rechercher un plat')} />
+          <div className="chips" role="group" aria-label={t('Filtres')}>
             {TAGS.map(([id, label]) => <Chip key={id} on={!!on[id]} onClick={() => toggle(id)}>{label}</Chip>)}
-            <Chip on={!!on.quick} onClick={() => toggle('quick')}>20 min max</Chip>
+            <Chip on={!!on.quick} onClick={() => toggle('quick')}>{t('20 min max')}</Chip>
           </div>
-          {shown.length === 0 && <EmptyState icon={SearchX} title="Aucun plat ne correspond" text="Retire un filtre ou change ta recherche." />}
+          {shown.length === 0 && <EmptyState icon={SearchX} title={t('Aucun plat ne correspond')} text={t('Retire un filtre ou change ta recherche.')} />}
           <ul className="recipe-grid">
             {shown.map(r => (
               <li key={r.id}>
@@ -58,7 +59,7 @@ export default function Recipes() {
                   <RecipePhoto path={r.photo_path} alt="" />
                   <span className="recipe-card-title">{r.title}</span>
                   <span className="muted">
-                    {recipeFor(r, 1).kcal} kcal / portion{r.prep_minutes != null ? ` · ${r.prep_minutes} min` : ''}
+                    {t('{kcal} kcal / portion', { kcal: recipeFor(r, 1).kcal })}{r.prep_minutes != null ? ` · ${r.prep_minutes} min` : ''}
                   </span>
                 </a>
               </li>

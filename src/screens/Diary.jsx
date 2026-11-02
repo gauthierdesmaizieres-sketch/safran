@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Camera, ChevronLeft, ChevronRight } from 'lucide-react'
 import { BottomSheet, Button, CalorieRing, FoodRow, IconButton, MacroBar, MealCard, TextField } from '../ui.jsx'
 import { addDays, formatDay, localDay, macroGoals, MEALS, mealForHour, parseNumber, scaleEntry, totals } from '../lib.js'
+import { t, tn } from '../i18n.js'
 import { deleteDiaryEntry, getGoal, listDiary, restoreDiaryEntry, updateDiaryEntry } from '../data.js'
 import { go } from '../App.jsx'
 
@@ -29,41 +30,41 @@ export default function Diary({ q, notify }) {
     setOpen(null)
     await deleteDiaryEntry(entry.id)
     reload()
-    notify(`${entry.label} supprimé`, 'Annuler', async () => { await restoreDiaryEntry(entry); reload() })
+    notify(t('{name} supprimé', { name: entry.label }), t('Annuler'), async () => { await restoreDiaryEntry(entry); reload() })
   }
 
   if (error) {
     return (
       <div className="page">
-        <p role="alert">Impossible de charger le journal.</p>
-        <Button variant="secondary" onClick={reload}>Réessayer</Button>
+        <p role="alert">{t('Impossible de charger le journal.')}</p>
+        <Button variant="secondary" onClick={reload}>{t('Réessayer')}</Button>
       </div>
     )
   }
 
-  const t = totals(entries ?? [])
+  const sum = totals(entries ?? [])
   const mg = goal ? macroGoals(goal) : { carbs: 0, protein: 0, fat: 0 }
 
   return (
     <div className="page diary">
       <header className="diary-head">
-        <IconButton label="Jour précédent" icon={ChevronLeft} onClick={() => setDay(addDays(day, -1))} />
+        <IconButton label={t('Jour précédent')} icon={ChevronLeft} onClick={() => setDay(addDays(day, -1))} />
         <h1 className="diary-day" aria-live="polite">{formatDay(day, today)}</h1>
-        <IconButton label="Jour suivant" icon={ChevronRight} disabled={day >= today} onClick={() => setDay(addDays(day, 1))} />
+        <IconButton label={t('Jour suivant')} icon={ChevronRight} disabled={day >= today} onClick={() => setDay(addDays(day, 1))} />
       </header>
 
-      <section className="card diary-summary" aria-label="Résumé du jour" aria-busy={!entries}>
-        {goal && entries ? <CalorieRing eaten={t.kcal} goal={goal.kcal_per_day} /> : <div className="skeleton ring-skel" />}
-        <p className="muted">{t.kcal} mangées · objectif {goal?.kcal_per_day ?? '…'} kcal</p>
+      <section className="card diary-summary" aria-label={t('Résumé du jour')} aria-busy={!entries}>
+        {goal && entries ? <CalorieRing eaten={sum.kcal} goal={goal.kcal_per_day} /> : <div className="skeleton ring-skel" />}
+        <p className="muted">{t('{eaten} mangées · objectif {goal} kcal', { eaten: sum.kcal, goal: goal?.kcal_per_day ?? '…' })}</p>
         <div className="diary-macros">
-          <MacroBar kind="carbs" label="Glucides" value={t.carbs} goal={mg.carbs} />
-          <MacroBar kind="protein" label="Protéines" value={t.protein} goal={mg.protein} />
-          <MacroBar kind="fat" label="Lipides" value={t.fat} goal={mg.fat} />
+          <MacroBar kind="carbs" label={t('Glucides')} value={sum.carbs} goal={mg.carbs} />
+          <MacroBar kind="protein" label={t('Protéines')} value={sum.protein} goal={mg.protein} />
+          <MacroBar kind="fat" label={t('Lipides')} value={sum.fat} goal={mg.fat} />
         </div>
       </section>
 
       <Button size="lg" block onClick={() => go(`/scan/${quickMeal}?day=${day}`)}>
-        <Camera size={20} aria-hidden="true" /> Photographier mon assiette
+        <Camera size={20} aria-hidden="true" /> {t('Photographier mon assiette')}
       </Button>
 
       {MEALS.map(m => {
@@ -71,10 +72,10 @@ export default function Diary({ q, notify }) {
         return (
           <MealCard key={m.id} title={m.label} kcal={totals(list).kcal} onAdd={() => go(`/add/${m.id}?day=${day}`)}>
             {!entries ? <div className="skeleton row-skel" />
-              : list.length === 0 ? <p className="muted">Rien de noté.</p>
+              : list.length === 0 ? <p className="muted">{t('Rien de noté.')}</p>
               : list.map(e => (
                 <FoodRow key={e.id} name={e.label} kcal={e.kcal} onClick={() => setOpen(e)}
-                  detail={`${e.grams ? `${e.grams} g` : `${e.servings} portion${e.servings > 1 ? 's' : ''}`}${e.method === 'photo' ? ' · photo' : ''}`} />
+                  detail={`${e.grams ? `${e.grams} g` : tn(e.servings, '{n} portion', '{n} portions')}${e.method === 'photo' ? ` · ${t('photo')}` : ''}`} />
               ))}
           </MealCard>
         )
@@ -83,8 +84,8 @@ export default function Diary({ q, notify }) {
       <BottomSheet open={!!open} onClose={() => setOpen(null)} title={open?.label ?? ''}>
         {open && (
           <div className="stack">
-            <EntryEditor key={open.id} entry={open} onSaved={() => { setOpen(null); reload(); notify('Entrée modifiée') }} />
-            <Button variant="ghost" block onClick={() => remove(open)}>Supprimer du journal</Button>
+            <EntryEditor key={open.id} entry={open} onSaved={() => { setOpen(null); reload(); notify(t('Entrée modifiée')) }} />
+            <Button variant="ghost" block onClick={() => remove(open)}>{t('Supprimer du journal')}</Button>
           </div>
         )}
       </BottomSheet>
@@ -116,18 +117,18 @@ function EntryEditor({ entry, onSaved }) {
 
   return (
     <>
-      <TextField id="entry-amount" label={byGrams ? 'Quantité' : 'Portions'} inputMode="decimal" suffix={byGrams ? 'g' : undefined}
-        value={amount} onChange={e => setAmount(e.target.value)} error={n ? undefined : 'Quantité invalide'} />
+      <TextField id="entry-amount" label={byGrams ? t('Quantité') : t('Portions')} inputMode="decimal" suffix={byGrams ? 'g' : undefined}
+        value={amount} onChange={e => setAmount(e.target.value)} error={n ? undefined : t('Quantité invalide')} />
       <div className="field">
-        <label htmlFor="entry-meal">Repas</label>
+        <label htmlFor="entry-meal">{t('Repas')}</label>
         <select id="entry-meal" className="select" value={meal} onChange={e => setMeal(e.target.value)}>
           {MEALS.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
         </select>
       </div>
       <p aria-live="polite"><strong>{now?.kcal ?? '–'} kcal</strong>
-        {now && <span className="muted"> · G {now.carbs} g · P {now.protein} g · L {now.fat} g</span>}</p>
-      {error && <p className="form-error" role="alert">La modification a échoué. Vérifie ta connexion et réessaie.</p>}
-      <Button block loading={saving} disabled={!n} onClick={save}>Enregistrer</Button>
+        {now && <span className="muted"> · {t('G {c} g · P {p} g · L {f} g', { c: now.carbs, p: now.protein, f: now.fat })}</span>}</p>
+      {error && <p className="form-error" role="alert">{t('La modification a échoué. Vérifie ta connexion et réessaie.')}</p>}
+      <Button block loading={saving} disabled={!n} onClick={save}>{t('Enregistrer')}</Button>
     </>
   )
 }

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeftRight, Plus, Trash2 } from 'lucide-react'
 import { BottomSheet, Button, FoodRow, IconButton, SearchField } from '../ui.jsx'
 import { localDay, MEALS, nutrientsFor, parseGrams, totals } from '../lib.js'
+import { t, tn } from '../i18n.js'
 import { addDiaryEntries, getScan, searchFoods, setScanStatus } from '../data.js'
 import { go } from '../App.jsx'
 import TopBar from './TopBar.jsx'
@@ -20,8 +21,8 @@ export default function ScanReview({ scanId, q, notify }) {
 
   useEffect(() => {
     let live = true
-    const t = setTimeout(() => searchFoods(q2).then(r => live && setFound(r)).catch(() => {}), 150)
-    return () => { live = false; clearTimeout(t) }
+    const timer = setTimeout(() => searchFoods(q2).then(r => live && setFound(r)).catch(() => {}), 150)
+    return () => { live = false; clearTimeout(timer) }
   }, [q2])
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export default function ScanReview({ scanId, q, notify }) {
       setSaving(false)
       return
     }
-    notify(`${rows.length} aliment${rows.length > 1 ? 's' : ''} ajouté${rows.length > 1 ? 's' : ''} · ${sum.kcal} kcal`)
+    notify(tn(rows.length, '{n} aliment ajouté · {kcal} kcal', '{n} aliments ajoutés · {kcal} kcal', { kcal: sum.kcal }))
     go(day === localDay() ? '/diary' : `/diary?day=${day}`)
   }
 
@@ -78,68 +79,68 @@ export default function ScanReview({ scanId, q, notify }) {
   if (missing) {
     return (
       <div className="page">
-        <TopBar title="Résultat" onBack={() => go('/diary')} />
-        <p role="alert">Ce scan n'existe plus ou a déjà été ajouté.</p>
-        <Button variant="secondary" onClick={() => go('/diary')}>Retour au journal</Button>
+        <TopBar title={t('Résultat')} onBack={() => go('/diary')} />
+        <p role="alert">{t("Ce scan n'existe plus ou a déjà été ajouté.")}</p>
+        <Button variant="secondary" onClick={() => go('/diary')}>{t('Retour au journal')}</Button>
       </div>
     )
   }
-  if (!items) return <div className="page"><TopBar title="Résultat" /><div className="skeleton row-skel" /></div>
+  if (!items) return <div className="page"><TopBar title={t('Résultat')} /><div className="skeleton row-skel" /></div>
 
   return (
     <div className="page review">
-      <TopBar title="Vérifie le résultat" />
-      <p className="muted">Ajuste les quantités : l'estimation sur photo peut se tromper de 20 à 30 %.</p>
+      <TopBar title={t('Vérifie le résultat')} />
+      <p className="muted">{t("Ajuste les quantités : l'estimation sur photo peut se tromper de 20 à 30 %.")}</p>
 
       <div className="field">
-        <label htmlFor="meal">Repas</label>
+        <label htmlFor="meal">{t('Repas')}</label>
         <select id="meal" className="select" value={meal} onChange={e => setMeal(e.target.value)}>
           {MEALS.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
         </select>
       </div>
 
       {rows.length === 0 ? (
-        <p className="muted">Plus aucun aliment. Reprends une photo ou abandonne ce scan.</p>
+        <p className="muted">{t('Plus aucun aliment. Reprends une photo ou abandonne ce scan.')}</p>
       ) : (
         <ul className="review-list card">
           {rows.map(r => (
             <li key={r.key} className="review-item">
               <div className="review-name">
                 <span>{r.label}</span>
-                {r.confidence < 0.7 && <span className="badge badge-warning">peu sûr</span>}
+                {r.confidence < 0.7 && <span className="badge badge-warning">{t('peu sûr')}</span>}
               </div>
               <div className="review-edit">
                 <div className={`field-box review-grams${r.grams === null ? ' is-invalid' : ''}`}>
-                  <input inputMode="decimal" aria-label={`Quantité de ${r.label} en grammes`} value={r.gramsText}
+                  <input inputMode="decimal" aria-label={t('Quantité de {name} en grammes', { name: r.label })} value={r.gramsText}
                     aria-invalid={r.grams === null} onChange={e => edit(r.key, e.target.value)} />
                   <span className="field-suffix">g</span>
                 </div>
                 <span className="review-kcal" aria-live="polite">{r.kcal} kcal</span>
-                <IconButton label={`Remplacer ${r.label}`} icon={ArrowLeftRight} onClick={() => openPicker(r.key, r.label.split(' ')[0])} />
-                <IconButton label={`Retirer ${r.label}`} icon={Trash2} onClick={() => drop(r.key)} />
+                <IconButton label={t('Remplacer {name}', { name: r.label })} icon={ArrowLeftRight} onClick={() => openPicker(r.key, r.label.split(' ')[0])} />
+                <IconButton label={t('Retirer {name}', { name: r.label })} icon={Trash2} onClick={() => drop(r.key)} />
               </div>
             </li>
           ))}
         </ul>
       )}
-      <Button variant="ghost" onClick={() => openPicker(null)}><Plus size={18} aria-hidden="true" /> Ajouter un aliment oublié</Button>
-      {invalid && <p className="form-error" role="alert">Entre une quantité entre 1 et 5000 g pour chaque aliment.</p>}
+      <Button variant="ghost" onClick={() => openPicker(null)}><Plus size={18} aria-hidden="true" /> {t('Ajouter un aliment oublié')}</Button>
+      {invalid && <p className="form-error" role="alert">{t('Entre une quantité entre 1 et 5000 g pour chaque aliment.')}</p>}
 
       <div className="review-total card">
         <strong>{sum.kcal} kcal</strong>
-        <span className="muted">G {sum.carbs} g · P {sum.protein} g · L {sum.fat} g</span>
+        <span className="muted">{t('G {c} g · P {p} g · L {f} g', { c: sum.carbs, p: sum.protein, f: sum.fat })}</span>
       </div>
 
-      {saveError && <p className="form-error" role="alert">L'ajout au journal a échoué. Vérifie ta connexion et réessaie : tes corrections sont gardées.</p>}
-      <Button size="lg" block loading={saving} disabled={invalid || rows.length === 0} onClick={save}>Ajouter au journal</Button>
-      <Button variant="ghost" block onClick={discard}>Abandonner ce scan</Button>
+      {saveError && <p className="form-error" role="alert">{t("L'ajout au journal a échoué. Vérifie ta connexion et réessaie : tes corrections sont gardées.")}</p>}
+      <Button size="lg" block loading={saving} disabled={invalid || rows.length === 0} onClick={save}>{t('Ajouter au journal')}</Button>
+      <Button variant="ghost" block onClick={discard}>{t('Abandonner ce scan')}</Button>
 
-      <BottomSheet open={!!picker} onClose={() => setPicker(null)} title={picker?.key ? 'Remplacer par' : 'Ajouter un aliment'}>
+      <BottomSheet open={!!picker} onClose={() => setPicker(null)} title={picker?.key ? t('Remplacer par') : t('Ajouter un aliment')}>
         <div className="stack picker">
-          <SearchField value={q2} onChange={setQ2} label="Chercher dans la base" />
+          <SearchField value={q2} onChange={setQ2} label={t('Chercher dans la base')} />
           <div aria-live="polite">
-            {q2 && found.length === 0 && <p className="muted">Aucun aliment trouvé.</p>}
-            {found.slice(0, 8).map(f => <FoodRow key={f.id} name={f.name} detail="pour 100 g" kcal={f.kcal_100g} onClick={() => pick(f)} />)}
+            {q2 && found.length === 0 && <p className="muted">{t('Aucun aliment trouvé.')}</p>}
+            {found.slice(0, 8).map(f => <FoodRow key={f.id} name={f.name} detail={t('pour 100 g')} kcal={f.kcal_100g} onClick={() => pick(f)} />)}
           </div>
         </div>
       </BottomSheet>

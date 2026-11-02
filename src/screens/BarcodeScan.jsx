@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { PackageSearch } from 'lucide-react'
 import { Button, EmptyState, TextField } from '../ui.jsx'
 import { mealLabel } from '../lib.js'
+import { t } from '../i18n.js'
 import { lookupBarcode } from '../data.js'
 import { go } from '../App.jsx'
 import TopBar from './TopBar.jsx'
@@ -47,7 +48,7 @@ export default function BarcodeScan({ meal, q }) {
     ;(async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
-        if (stopped) return stream.getTracks().forEach(t => t.stop())
+        if (stopped) return stream.getTracks().forEach(tr => tr.stop())
         video.current.srcObject = stream
         await video.current.play()
         setCamera('on')
@@ -65,45 +66,46 @@ export default function BarcodeScan({ meal, q }) {
         setCamera('off') // denied, no camera, or insecure origin
       }
     })()
-    return () => { stopped = true; clearTimeout(timer); stream?.getTracks().forEach(t => t.stop()) }
+    return () => { stopped = true; clearTimeout(timer); stream?.getTracks().forEach(tr => tr.stop()) }
   }, [])
 
   const create = s => go(`/new-food/${meal}?day=${day}&barcode=${s.ean}` +
     (s.prefill?.name ? `&name=${encodeURIComponent(s.prefill.name)}` : '') + (s.prefill?.brand ? `&brand=${encodeURIComponent(s.prefill.brand)}` : ''))
   const validManual = /^\d{8,14}$/.test(manual.trim())
+  const title = t('Code-barres · {meal}', { meal: mealLabel(meal) })
 
   if (state.step === 'missing') {
     return (
       <div className="page">
-        <TopBar title={`Code-barres · ${mealLabel(meal)}`} />
-        <EmptyState icon={PackageSearch} title="Produit inconnu"
+        <TopBar title={title} />
+        <EmptyState icon={PackageSearch} title={t('Produit inconnu')}
           text={state.prefill.name
-            ? `« ${state.prefill.name} » existe, mais sans valeurs nutritionnelles complètes. Recopie-les depuis l'étiquette.`
-            : `Le code ${state.ean} n'est pas encore dans la base. Ajoute-le avec les valeurs de l'étiquette.`}
-          action={<Button onClick={() => create(state)}>Créer cet aliment</Button>} />
-        <Button variant="ghost" onClick={() => { done.current = false; setState({ step: 'scan' }); setManual('') }}>Scanner un autre produit</Button>
+            ? t("« {name} » existe, mais sans valeurs nutritionnelles complètes. Recopie-les depuis l'étiquette.", { name: state.prefill.name })
+            : t("Le code {ean} n'est pas encore dans la base. Ajoute-le avec les valeurs de l'étiquette.", { ean: state.ean })}
+          action={<Button onClick={() => create(state)}>{t('Créer cet aliment')}</Button>} />
+        <Button variant="ghost" onClick={() => { done.current = false; setState({ step: 'scan' }); setManual('') }}>{t('Scanner un autre produit')}</Button>
       </div>
     )
   }
 
   return (
     <div className="page">
-      <TopBar title={`Code-barres · ${mealLabel(meal)}`} />
+      <TopBar title={title} />
       <div className="scanner" aria-hidden={camera !== 'on'}>
-        <video ref={video} muted playsInline aria-label="Aperçu de la caméra" />
+        <video ref={video} muted playsInline aria-label={t('Aperçu de la caméra')} />
         {camera === 'on' && <div className="scanner-frame" />}
       </div>
       <p className="muted" aria-live="polite">
-        {state.step === 'busy' ? `Recherche du code ${state.ean}…`
-          : camera === 'on' ? 'Place le code-barres dans le cadre.'
-          : camera === 'off' ? "Caméra indisponible ou refusée : saisis le code imprimé sous les barres."
-          : 'Ouverture de la caméra…'}
+        {state.step === 'busy' ? t('Recherche du code {ean}…', { ean: state.ean })
+          : camera === 'on' ? t('Place le code-barres dans le cadre.')
+          : camera === 'off' ? t('Caméra indisponible ou refusée : saisis le code imprimé sous les barres.')
+          : t('Ouverture de la caméra…')}
       </p>
-      {state.step === 'error' && <p className="form-error" role="alert">La recherche a échoué. Vérifie ta connexion et réessaie.</p>}
+      {state.step === 'error' && <p className="form-error" role="alert">{t('La recherche a échoué. Vérifie ta connexion et réessaie.')}</p>}
       <form className="stack" onSubmit={e => { e.preventDefault(); if (validManual) { done.current = false; handle(manual.trim()) } }}>
-        <TextField id="ean" label="Saisir le code" inputMode="numeric" autoComplete="off" value={manual}
-          onChange={e => setManual(e.target.value)} error={manual && !validManual ? '8 à 14 chiffres.' : undefined} />
-        <Button type="submit" variant="secondary" disabled={!validManual} loading={state.step === 'busy'}>Chercher</Button>
+        <TextField id="ean" label={t('Saisir le code')} inputMode="numeric" autoComplete="off" value={manual}
+          onChange={e => setManual(e.target.value)} error={manual && !validManual ? t('8 à 14 chiffres.') : undefined} />
+        <Button type="submit" variant="secondary" disabled={!validManual} loading={state.step === 'busy'}>{t('Chercher')}</Button>
       </form>
     </div>
   )

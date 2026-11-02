@@ -39,7 +39,7 @@ test('F04-H2 create a dish, totals per portion, log 1.5 portions', async ({ page
   await expect(page.getByRole('dialog')).toContainText('480 kcal')
   await page.getByRole('button', { name: 'Ajouter', exact: true }).click()
   await expect(page.getByRole('status').filter({ hasText: 'ajouté' })).toContainText('Bol riz poulet ajouté · 480 kcal')
-  await expect(page.getByRole('button', { name: /Bol riz poulet.*1.5 portions/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Bol riz poulet.*1\.5 portion/ })).toBeVisible()
   expect((await diaryRows(user.id))[0]).toMatchObject({ servings: 1.5, kcal: 480, meal: 'dinner', method: 'recipe' })
 
   await page.goto('/#/recipes')

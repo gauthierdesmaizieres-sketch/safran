@@ -1,10 +1,11 @@
 // Pure helpers (no DOM, no storage) so they can be tested with node --test.
+import { LOCALE, t } from './i18n.js'
 
 export const MEALS = [
-  { id: 'breakfast', label: 'Petit-déjeuner' },
-  { id: 'lunch', label: 'Déjeuner' },
-  { id: 'dinner', label: 'Dîner' },
-  { id: 'snack', label: 'En-cas' },
+  { id: 'breakfast', label: t('Petit-déjeuner') },
+  { id: 'lunch', label: t('Déjeuner') },
+  { id: 'dinner', label: t('Dîner') },
+  { id: 'snack', label: t('En-cas') },
 ]
 export const mealLabel = id => MEALS.find(m => m.id === id)?.label ?? id
 
@@ -20,10 +21,10 @@ export function addDays(day, n) {
 }
 
 export function formatDay(day, today = localDay()) {
-  if (day === today) return "Aujourd'hui"
-  if (day === addDays(today, -1)) return 'Hier'
+  if (day === today) return t("Aujourd'hui")
+  if (day === addDays(today, -1)) return t('Hier')
   const [y, m, d] = day.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+  return new Date(y, m - 1, d).toLocaleDateString(LOCALE,{ weekday: 'long', day: 'numeric', month: 'long' })
 }
 
 // Default meal from the clock, so "+" from the diary header lands where people expect.
@@ -86,11 +87,11 @@ export function parseNumber(text, min = 0, max = Infinity) {
 // ---- onboarding (S01–S03)
 
 export const ACTIVITY = [
-  ['sedentary', 'Sédentaire', 'Bureau, peu de marche', 1.2],
-  ['light', 'Peu actif', 'Marche, sport 1–2 fois/semaine', 1.375],
-  ['moderate', 'Actif', 'Sport 3–4 fois/semaine', 1.55],
-  ['active', 'Très actif', 'Sport presque tous les jours', 1.725],
-  ['very_active', 'Extrêmement actif', 'Métier physique + sport', 1.9],
+  ['sedentary', t('Sédentaire'), t('Bureau, peu de marche'), 1.2],
+  ['light', t('Peu actif'), t('Marche, sport 1–2 fois/semaine'), 1.375],
+  ['moderate', t('Actif'), t('Sport 3–4 fois/semaine'), 1.55],
+  ['active', t('Très actif'), t('Sport presque tous les jours'), 1.725],
+  ['very_active', t('Extrêmement actif'), t('Métier physique + sport'), 1.9],
 ]
 
 export function ageOn(birthDate, today = localDay()) {
@@ -132,18 +133,18 @@ export function planGoal(p, today = localDay()) {
 export function checkProfile(p, today = localDay()) {
   const e = {}
   const age = p.birth_date ? ageOn(p.birth_date, today) : null
-  if (!p.sex) e.sex = 'Choisis une option.'
-  if (age == null || age < 13 || age > 110) e.birth_date = 'Entre une date de naissance valide (13 ans minimum).'
-  if (!(p.height_cm >= 120 && p.height_cm <= 230)) e.height_cm = 'Entre une taille entre 120 et 230 cm.'
-  if (!(p.weight_kg >= 30 && p.weight_kg <= 300)) e.weight_kg = 'Entre un poids entre 30 et 300 kg.'
-  if (!p.activity_level) e.activity_level = 'Choisis ton niveau d\'activité.'
-  if (p.type === 'lose' && age != null && age < 18) e.type = 'Avant 18 ans, l\'app ne propose pas de perte de poids. Parles-en à un médecin.'
+  if (!p.sex) e.sex = t('Choisis une option.')
+  if (age == null || age < 13 || age > 110) e.birth_date = t('Entre une date de naissance valide (13 ans minimum).')
+  if (!(p.height_cm >= 120 && p.height_cm <= 230)) e.height_cm = t('Entre une taille entre 120 et 230 cm.')
+  if (!(p.weight_kg >= 30 && p.weight_kg <= 300)) e.weight_kg = t('Entre un poids entre 30 et 300 kg.')
+  if (!p.activity_level) e.activity_level = t("Choisis ton niveau d'activité.")
+  if (p.type === 'lose' && age != null && age < 18) e.type = t("Avant 18 ans, l'app ne propose pas de perte de poids. Parles-en à un médecin.")
   if (p.type !== 'maintain' && !e.height_cm && !e.weight_kg) {
-    const t = p.target_weight_kg
-    if (!(t >= 30 && t <= 300)) e.target_weight_kg = 'Entre un poids cible entre 30 et 300 kg.'
-    else if (p.type === 'lose' && t >= p.weight_kg) e.target_weight_kg = 'Pour perdre du poids, la cible doit être sous ton poids actuel.'
-    else if (p.type === 'gain' && t <= p.weight_kg) e.target_weight_kg = 'Pour prendre du poids, la cible doit être au-dessus de ton poids actuel.'
-    else if (p.type === 'lose' && bmi(t, p.height_cm) < 18.5) e.target_weight_kg = `Cette cible est sous un IMC de 18,5. Le minimum conseillé pour ta taille est ${Math.ceil(18.5 * (p.height_cm / 100) ** 2)} kg.`
+    const target = p.target_weight_kg
+    if (!(target >= 30 && target <= 300)) e.target_weight_kg = t('Entre un poids cible entre 30 et 300 kg.')
+    else if (p.type === 'lose' && target >= p.weight_kg) e.target_weight_kg = t('Pour perdre du poids, la cible doit être sous ton poids actuel.')
+    else if (p.type === 'gain' && target <= p.weight_kg) e.target_weight_kg = t('Pour prendre du poids, la cible doit être au-dessus de ton poids actuel.')
+    else if (p.type === 'lose' && bmi(target, p.height_cm) < 18.5) e.target_weight_kg = t('Cette cible est sous un IMC de 18,5. Le minimum conseillé pour ta taille est {kg} kg.', { kg: Math.ceil(18.5 * (p.height_cm / 100) ** 2) })
   }
   return e
 }

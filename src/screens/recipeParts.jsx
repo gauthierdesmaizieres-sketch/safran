@@ -2,14 +2,15 @@
 import { useEffect, useState } from 'react'
 import { CookingPot } from 'lucide-react'
 import { photoUrl } from '../data.js'
+import { t } from '../i18n.js'
 
 export const TAGS = [
-  ['vegetarien', 'Végétarien'],
-  ['vegan', 'Vegan'],
-  ['low-carb', 'Peu de glucides'],
-  ['sans-gluten', 'Sans gluten'],
+  ['vegetarien', t('Végétarien')],
+  ['vegan', t('Vegan')],
+  ['low-carb', t('Peu de glucides')],
+  ['sans-gluten', t('Sans gluten')],
 ]
-export const tagLabel = t => TAGS.find(([id]) => id === t)?.[1] ?? t
+export const tagLabel = tag => TAGS.find(([id]) => id === tag)?.[1] ?? tag
 
 // Private bucket: photos are shown through short-lived signed URLs.
 export function useSignedUrl(path) {

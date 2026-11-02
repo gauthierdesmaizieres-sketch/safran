@@ -18,6 +18,7 @@ import Stub from './screens/Stub.jsx'
 import Welcome from './screens/Welcome.jsx'
 import Profile from './screens/Profile.jsx'
 import { supabase } from './supabase.js'
+import { t } from './i18n.js'
 
 // Hash routes: #/diary?day=… | #/add/:meal?day=… | #/scan/:meal | #/review/:scanId | #/barcode/:meal | #/food/:id | #/new-food/:meal
 // #/goals (S01–S03 again from the profile) | #/recipes | #/recipe/new | #/recipe/:id | #/recipe/:id/edit | #/cook/:id?for=n
@@ -29,10 +30,10 @@ function parse() {
 }
 
 const TABS = [
-  { id: 'diary', label: 'Journal', icon: NotebookPen },
-  { id: 'recipes', label: 'Recettes', icon: BookOpen },
-  { id: 'progress', label: 'Progrès', icon: ChartLine },
-  { id: 'profile', label: 'Profil', icon: User },
+  { id: 'diary', label: t('Journal'), icon: NotebookPen },
+  { id: 'recipes', label: t('Recettes'), icon: BookOpen },
+  { id: 'progress', label: t('Progrès'), icon: ChartLine },
+  { id: 'profile', label: t('Profil'), icon: User },
 ]
 
 export default function App() {
@@ -84,7 +85,7 @@ export default function App() {
       break
     case 'cook': page = <Cook recipeId={param} {...props} />; tab = null; break
     case 'goals': page = <Onboarding {...props} />; tab = null; break
-    case 'progress': page = <Stub title="Progrès" ids="S18" />; break
+    case 'progress': page = <Stub title={t('Progrès')} ids="S18" />; break
     case 'profile': page = <Profile {...props} />; break
     default: page = <Diary {...props} />; tab = 'diary'
   }

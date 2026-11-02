@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { ChefHat, Pencil, Star } from 'lucide-react'
 import { BottomSheet, Button, IconButton, Stepper, TextField } from '../ui.jsx'
 import { localDay, MEALS, mealForHour, parseNumber, recipeFor } from '../lib.js'
+import { t, tn } from '../i18n.js'
 import { addDiaryEntries, getRecipe, isFavorite, setFavorite } from '../data.js'
 import { go } from '../App.jsx'
 import TopBar from './TopBar.jsx'
@@ -25,8 +26,8 @@ export default function RecipeDetail({ recipeId, q, notify }) {
     isFavorite({ recipe_id: recipeId }).then(setFav).catch(() => {})
   }, [recipeId])
 
-  if (r === undefined) return <div className="page"><TopBar title="Plat" /><div className="skeleton card-skel" /></div>
-  if (r === null) return <div className="page"><TopBar title="Plat" onBack={() => go('/recipes')} /><p role="alert">Ce plat n'existe plus.</p></div>
+  if (r === undefined) return <div className="page"><TopBar title={t('Plat')} /><div className="skeleton card-skel" /></div>
+  if (r === null) return <div className="page"><TopBar title={t('Plat')} onBack={() => go('/recipes')} /><p role="alert">{t("Ce plat n'existe plus.")}</p></div>
 
   const one = recipeFor(r, 1)
   const n = parseNumber(eaten, 0.1, 20)
@@ -49,40 +50,40 @@ export default function RecipeDetail({ recipeId, q, notify }) {
       setSaving(false)
       return
     }
-    notify(`${r.title} ajouté · ${recipeFor(r, n).kcal} kcal`)
+    notify(t('{name} ajouté · {kcal} kcal', { name: r.title, kcal: recipeFor(r, n).kcal }))
     go(day === localDay() ? '/diary' : `/diary?day=${day}`)
   }
 
   return (
     <div className="page">
-      <TopBar title="Plat" onBack={() => history.back()} />
+      <TopBar title={t('Plat')} onBack={() => history.back()} />
       <RecipePhoto path={r.photo_path} alt={r.title} className="recipe-hero" />
       <header className="food-head">
         <div>
           <h1>{r.title}</h1>
           <p className="muted">
-            {[r.prep_minutes != null && `${r.prep_minutes} min`, `${r.servings} portion${r.servings > 1 ? 's' : ''}`, ...r.tags.map(tagLabel)].filter(Boolean).join(' · ')}
+            {[r.prep_minutes != null && `${r.prep_minutes} min`, tn(r.servings, '{n} portion', '{n} portions'), ...r.tags.map(tagLabel)].filter(Boolean).join(' · ')}
           </p>
         </div>
-        <IconButton label={fav ? 'Retirer des favoris' : 'Ajouter aux favoris'} icon={Star} aria-pressed={fav} variant={fav ? 'filled' : 'plain'} onClick={toggleFav} />
+        <IconButton label={fav ? t('Retirer des favoris') : t('Ajouter aux favoris')} icon={Star} aria-pressed={fav} variant={fav ? 'filled' : 'plain'} onClick={toggleFav} />
       </header>
 
-      <section className="card stack" aria-label="Par portion">
-        <p><span className="kcal-big">{one.kcal}</span> kcal par portion</p>
-        <p className="muted">Glucides {one.carbs} g · Protéines {one.protein} g · Lipides {one.fat} g</p>
+      <section className="card stack" aria-label={t('Par portion')}>
+        <p><span className="kcal-big">{one.kcal}</span> {t('kcal par portion')}</p>
+        <p className="muted">{t('Glucides {c} g · Protéines {p} g · Lipides {f} g', { c: one.carbs, p: one.protein, f: one.fat })}</p>
       </section>
 
       <div className="stack">
-        <Button block onClick={() => { setClientId(crypto.randomUUID()); setSheet(true) }}>Ajouter au journal</Button>
-        <Button variant="secondary" block onClick={() => go(`/cook/${r.id}?for=${cookFor}`)}><ChefHat size={18} aria-hidden="true" /> Cuisiner</Button>
+        <Button block onClick={() => { setClientId(crypto.randomUUID()); setSheet(true) }}>{t('Ajouter au journal')}</Button>
+        <Button variant="secondary" block onClick={() => go(`/cook/${r.id}?for=${cookFor}`)}><ChefHat size={18} aria-hidden="true" /> {t('Cuisiner')}</Button>
       </div>
 
       <section className="stack" aria-labelledby="ing-h">
         <div className="food-head">
-          <h2 id="ing-h" className="section-title">Ingrédients</h2>
-          <Stepper value={cookFor} onChange={setCookFor} min={1} max={100} label="les portions à cuisiner" />
+          <h2 id="ing-h" className="section-title">{t('Ingrédients')}</h2>
+          <Stepper value={cookFor} onChange={setCookFor} min={1} max={100} label={t('les portions à cuisiner')} />
         </div>
-        <p className="muted">Pour {cookFor} portion{cookFor > 1 ? 's' : ''}</p>
+        <p className="muted">{t('Pour {p}', { p: tn(cookFor, '{n} portion', '{n} portions') })}</p>
         <ul className="ingredients">
           {r.recipe_ingredients.map(i => (
             <li key={i.id}><span>{i.foods.name}</span><span>{Math.round(i.grams * scale)} g</span></li>
@@ -92,26 +93,26 @@ export default function RecipeDetail({ recipeId, q, notify }) {
 
       {r.steps?.length > 0 && (
         <section className="stack" aria-labelledby="steps-h">
-          <h2 id="steps-h" className="section-title">Étapes</h2>
+          <h2 id="steps-h" className="section-title">{t('Étapes')}</h2>
           <ol className="steps">{r.steps.map((s, i) => <li key={i}>{s.text}</li>)}</ol>
         </section>
       )}
 
-      {mine && <Button variant="ghost" onClick={() => go(`/recipe/${r.id}/edit`)}><Pencil size={16} aria-hidden="true" /> Modifier le plat</Button>}
+      {mine && <Button variant="ghost" onClick={() => go(`/recipe/${r.id}/edit`)}><Pencil size={16} aria-hidden="true" /> {t('Modifier le plat')}</Button>}
 
-      <BottomSheet open={sheet} onClose={() => setSheet(false)} title="Ajouter au journal">
+      <BottomSheet open={sheet} onClose={() => setSheet(false)} title={t('Ajouter au journal')}>
         <div className="stack">
-          <TextField id="eaten" label="Portions mangées" inputMode="decimal" value={eaten} onChange={e => setEaten(e.target.value)}
-            error={n == null ? 'Entre un nombre entre 0,1 et 20.' : undefined} />
+          <TextField id="eaten" label={t('Portions mangées')} inputMode="decimal" value={eaten} onChange={e => setEaten(e.target.value)}
+            error={n == null ? t('Entre un nombre entre 0,1 et 20.') : undefined} />
           <div className="field">
-            <label htmlFor="meal">Repas</label>
+            <label htmlFor="meal">{t('Repas')}</label>
             <select id="meal" className="select" value={meal} onChange={e => setMeal(e.target.value)}>
               {MEALS.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
             </select>
           </div>
           <p aria-live="polite"><strong>{n ? recipeFor(r, n).kcal : '–'} kcal</strong></p>
-          {error && <p className="form-error" role="alert">L'ajout a échoué. Vérifie ta connexion et réessaie.</p>}
-          <Button block loading={saving} disabled={!n} onClick={add}>Ajouter</Button>
+          {error && <p className="form-error" role="alert">{t("L'ajout a échoué. Vérifie ta connexion et réessaie.")}</p>}
+          <Button block loading={saving} disabled={!n} onClick={add}>{t('Ajouter')}</Button>
         </div>
       </BottomSheet>
     </div>

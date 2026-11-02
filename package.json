@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "tokens": "node replica/design/gen-css.mjs && python replica/design/contrast.py replica/design/tokens.json",
-    "test": "node --test src/lib.test.js"
+    "test": "node --test src/lib.test.js src/i18n.test.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
