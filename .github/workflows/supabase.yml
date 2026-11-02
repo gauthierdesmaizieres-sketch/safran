@@ -36,7 +36,7 @@ jobs:
             [ -n "${!v}" ] || { echo "::error::$v is not set (see the top of this file)"; exit 1; }
           done
       - run: supabase link --project-ref "$REF"
-      - run: supabase db push --include-all --remote # newer CLIs target the local stack by default
+      - run: supabase db push --include-all --remote --yes # newer CLIs target the local stack and ask to confirm by default
       - run: supabase functions deploy --project-ref "$REF"
       - name: Function secrets (Gemini key, access code)
         env:
