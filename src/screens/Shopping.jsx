@@ -1,6 +1,7 @@
 // S17 Liste de courses : interne (synchronisée, cochable en magasin) + partage en texte vers Keep, WhatsApp, SMS…
 import { useEffect, useState } from 'react'
-import { Share2, ShoppingBasket } from 'lucide-react'
+import { Share2 } from 'lucide-react'
+import { Avocado } from '../FoodMotion.jsx'
 import { Button, EmptyState, TextField } from '../ui.jsx'
 import { shoppingText } from '../lib.js'
 import { addShopping, deleteShopping, listShopping, setShoppingChecked } from '../data.js'
@@ -66,7 +67,7 @@ export default function Shopping({ notify }) {
       </form>
 
       {items?.length === 0 && (
-        <EmptyState icon={ShoppingBasket} title="Ta liste est vide"
+        <EmptyState icon={Avocado} title="Ta liste est vide"
           text="Ajoute les ingrédients d'un plat depuis sa fiche, ou d'une recette importée." />
       )}
       {items?.length > 0 && (

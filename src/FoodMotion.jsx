@@ -1,5 +1,5 @@
-// Prototype (replica/ideas.md): small food drawings that move once, on mount. Inline SVG + CSS, ~2 KB,
-// colours from tokens. Shown only on /?design until the owner says yes. Decorative: aria-hidden.
+// Small food drawings that move once, on mount (replica/ideas.md). Inline SVG + CSS, ~2 KB, colours from
+// tokens. Used as EmptyState icons (ignore its size prop); still on /?design. Decorative: aria-hidden.
 const svg = (cls, children) => (
   <svg className={`food-motion ${cls}`} viewBox="0 0 64 64" width="64" height="64" aria-hidden="true" focusable="false">{children}</svg>
 )

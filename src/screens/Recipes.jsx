@@ -1,6 +1,7 @@
 // S12 Mes plats : liste, recherche, filtres
 import { useEffect, useState } from 'react'
-import { CookingPot, Link2, Plus, SearchX, ShoppingBasket } from 'lucide-react'
+import { Link2, Plus, SearchX, ShoppingBasket } from 'lucide-react'
+import { Drumstick } from '../FoodMotion.jsx'
 import { Button, Chip, EmptyState, SearchField } from '../ui.jsx'
 import { recipeFor } from '../lib.js'
 import { listRecipes } from '../data.js'
@@ -42,7 +43,7 @@ export default function Recipes() {
       )}
 
       {list?.length === 0 && (
-        <EmptyState icon={CookingPot} title="Aucun plat pour l'instant"
+        <EmptyState icon={Drumstick} title="Aucun plat pour l'instant"
           text="Crée tes plats maison une fois : leurs calories par portion sont calculées, et tu les ajoutes au journal en un geste."
           action={<Button onClick={() => go('/recipe/new')}>Créer mon premier plat</Button>} />
       )}

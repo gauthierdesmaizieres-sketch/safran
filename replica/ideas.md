@@ -35,7 +35,7 @@ Règles proposées :
 
 Prototype : `src/FoodMotion.jsx` (œuf qui rebondit, pilon qui tombe, avocat qui fume), visible sur
 `/?design` dans la section « Aliments animés (prototype) » avec un bouton « Rejouer ».
-**Rien n'est branché dans les écrans** : à valider avant de les poser dans les états vides.
+Validé le 2026-11-02 : pilon dans « Aucun plat pour l'instant », avocat dans « Ta liste est vide ». L'œuf reste en réserve.
 
 ## Import recette Instagram / YouTube → liste de courses (S16, S17)
 
