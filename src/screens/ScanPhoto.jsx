@@ -2,14 +2,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { Camera, ImagePlus } from 'lucide-react'
 import { Button, TextField } from '../ui.jsx'
-import { mealLabel } from '../lib.js'
+import { mealLabel, maybeImage } from '../lib.js'
 import { t } from '../i18n.js'
-import { getAccessCode, scanPhoto, setAccessCode } from '../data.js'
+import { getAccessCode, scanPhoto, setAccessCode, shrink } from '../data.js'
 import { go } from '../App.jsx'
 import TopBar from './TopBar.jsx'
 
 const ERRORS = {
-  'not-image': t('Cette image ne peut pas être lue. Essaie une photo JPEG ou PNG.'),
+  'not-image': t('Cette image ne peut pas être lue. Essaie une photo JPEG, PNG ou HEIC.'),
   limit: t("Tu as atteint la limite d'analyses pour aujourd'hui. Ajoute ton repas par la recherche."),
   refused: t("Cette photo n'a pas pu être analysée. Essaie une autre prise de vue."),
   busy: t("Le service d'analyse est saturé. Réessaie dans une minute."),
@@ -33,10 +33,10 @@ export default function ScanPhoto({ meal, q }) {
     const f = e.target.files?.[0]
     e.target.value = ''
     if (!f) return
-    if (!f.type.startsWith('image/')) { setError(t("Ce fichier n'est pas une image.")); return }
+    if (!maybeImage(f)) { setError(t("Ce fichier n'est pas une image.")); return }
     setError(null)
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
+    // decoded now so a HEIC shows in the preview too
+    shrink(f).then(jpg => { setFile(jpg); setPreview(URL.createObjectURL(jpg)) }, () => setError(ERRORS['not-image']))
   }
 
   async function analyse() {

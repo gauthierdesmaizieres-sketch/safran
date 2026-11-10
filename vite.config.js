@@ -31,6 +31,8 @@ export default defineConfig({
       workbox: {
         // App shell only. Supabase data and photos always go to the network: a stale diary would lie.
         globPatterns: ['**/*.{js,css,html,svg,png}'],
+        globIgnores: ['**/heic-to-*.js'], // 3 MB HEIC decoder: fetched only when a HEIC photo is picked
+
         navigateFallbackDenylist: [/^\/auth\//],
         maximumFileSizeToCacheInBytes: 3_000_000,
       },

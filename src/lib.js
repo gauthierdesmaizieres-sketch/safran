@@ -178,3 +178,6 @@ export function shoppingLines(recipe, n) {
 export function shoppingText(items) {
   return items.filter(i => !i.checked).map(i => `- ${i.text}`).join('\n')
 }
+
+// Phones may label HEIC photos '' or application/octet-stream instead of image/heic.
+export const maybeImage = f => f.type.startsWith('image/') || /\.(heic|heif)$/i.test(f.name ?? '') || !f.type

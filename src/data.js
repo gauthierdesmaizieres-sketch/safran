@@ -1,6 +1,7 @@
 // Data layer on Supabase. Same signatures as the fake layer it replaced, so screens didn't change.
 // Access control lives in Postgres RLS (supabase/migrations); this file never filters by user for security.
 import { supabase } from './supabase.js'
+import { maybeImage } from './lib.js'
 
 const DEFAULT_GOAL = { kcal_per_day: 2000, carbs_pct: 50, protein_pct: 20, fat_pct: 30 }
 
@@ -64,10 +65,18 @@ export async function searchFoods(q) {
   return must(await supabase.rpc('search_foods', { q: q.trim(), lim: 30 }))
 }
 
+async function bitmap(file) {
+  try { return await createImageBitmap(file) } catch { /* maybe HEIC */ }
+  // Chrome can't decode HEIC (default format on many phones); the 3 MB decoder is fetched only for those files.
+  const { heicTo, isHeic } = await import('heic-to')
+  if (!(await isHeic(file))) throw new Error('not-image')
+  return createImageBitmap(await heicTo({ blob: file, type: 'image/jpeg', quality: 0.9 }))
+}
+
 // Phone photos are 3–12 MB; 1024 px JPEG is plenty for recognition and keeps upload + tokens small.
-async function shrink(file) {
+export async function shrink(file) {
   try {
-    const bmp = await createImageBitmap(file)
+    const bmp = await bitmap(file)
     const s = Math.min(1, 1024 / Math.max(bmp.width, bmp.height))
     const c = document.createElement('canvas')
     c.width = Math.round(bmp.width * s)
@@ -75,13 +84,13 @@ async function shrink(file) {
     c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height)
     return await new Promise((ok, ko) => c.toBlob(b => (b ? ok(b) : ko(new Error('encode'))), 'image/jpeg', 0.85))
   } catch {
-    throw new Error('not-image') // e.g. HEIC the browser can't decode
+    throw new Error('not-image')
   }
 }
 
 // Returns { scan_id, items }. Throws Error(code): not-image | code (wrong access code) | limit | refused | ai | network
 export async function scanPhoto(file) {
-  if (!file?.type?.startsWith('image/')) throw new Error('not-image')
+  if (!file || !maybeImage(file)) throw new Error('not-image')
   const blob = await shrink(file)
   const path = `${await userId()}/${crypto.randomUUID()}.jpg`
   const up = await supabase.storage.from('photos').upload(path, blob, { contentType: 'image/jpeg' })
@@ -195,7 +204,11 @@ export async function saveRecipe(recipe, ingredients) {
 
 export async function deleteRecipe(recipe) {
   must(await supabase.from('recipes').delete().eq('id', recipe.id))
-  if (recipe.photo_path) await supabase.storage.from('photos').remove([recipe.photo_path])
+  if (recipe.photo_path) await removePhoto(recipe.photo_path)
+}
+
+export async function removePhoto(path) {
+  await supabase.storage.from('photos').remove([path])
 }
 
 // Flat <uid>/recipe-*.jpg (no sub-folder) so delete-account's single-level listing removes it too.

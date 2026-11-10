@@ -117,7 +117,7 @@ const ROWS = [
   ['Chercher', 'Suchen', 'Look up'],
 
   // S08 / S09 photo scan
-  ['Cette image ne peut pas être lue. Essaie une photo JPEG ou PNG.', 'Dieses Bild kann nicht gelesen werden. Versuche ein JPEG- oder PNG-Foto.', "This image can't be read. Try a JPEG or PNG photo."],
+  ['Cette image ne peut pas être lue. Essaie une photo JPEG, PNG ou HEIC.', 'Dieses Bild kann nicht gelesen werden. Versuche ein JPEG-, PNG- oder HEIC-Foto.', "This image can't be read. Try a JPEG, PNG or HEIC photo."],
   ["Tu as atteint la limite d'analyses pour aujourd'hui. Ajoute ton repas par la recherche.", 'Du hast das Analyse-Limit für heute erreicht. Füge deine Mahlzeit über die Suche hinzu.', "You've reached today's analysis limit. Add your meal with search."],
   ["Cette photo n'a pas pu être analysée. Essaie une autre prise de vue.", 'Dieses Foto konnte nicht analysiert werden. Versuche eine andere Aufnahme.', "This photo couldn't be analysed. Try another shot."],
   ["Le service d'analyse est saturé. Réessaie dans une minute.", 'Der Analysedienst ist überlastet. Versuche es in einer Minute erneut.', 'The analysis service is busy. Try again in a minute.'],
@@ -271,6 +271,8 @@ const ROWS = [
   ['Plat créé', 'Gericht angelegt', 'Dish created'],
   ['Plat enregistré', 'Gericht gespeichert', 'Dish saved'],
   ['Cette photo ne peut pas être lue.', 'Dieses Foto kann nicht gelesen werden.', "This photo can't be read."],
+  ['Retirer la photo', 'Foto entfernen', 'Remove the photo'],
+  ['Changer', 'Ändern', 'Change'],
   ["L'enregistrement a échoué. Vérifie ta connexion et réessaie : rien n'est perdu.", 'Speichern fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut: Nichts geht verloren.', "Couldn't save. Check your connection and try again: nothing is lost."],
   ['La suppression a échoué. Vérifie ta connexion et réessaie.', 'Löschen fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut.', "Couldn't delete. Check your connection and try again."],
   ['Changer la photo', 'Foto ändern', 'Change the photo'],

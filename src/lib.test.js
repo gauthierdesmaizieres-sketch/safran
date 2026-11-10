@@ -110,3 +110,11 @@ test('shoppingLines scales grams to the portions cooked; shoppingText skips chec
   assert.deepEqual(shoppingLines(r, 2), ['Riz · 200 g', 'Sel · 2 g'])
   assert.equal(shoppingText([{ text: 'Riz', checked: false }, { text: 'Sel', checked: true }, { text: 'Œufs', checked: false }]), '- Riz\n- Œufs')
 })
+
+import { maybeImage } from './lib.js'
+test('maybeImage lets unlabeled HEIC through, refuses text', () => {
+  assert.ok(maybeImage({ type: 'image/jpeg', name: 'a.jpg' }))
+  assert.ok(maybeImage({ type: '', name: 'IMG_1.HEIC' }))
+  assert.ok(maybeImage({ type: 'application/octet-stream', name: 'x.heif' }))
+  assert.ok(!maybeImage({ type: 'text/plain', name: 'notes.txt' }))
+})

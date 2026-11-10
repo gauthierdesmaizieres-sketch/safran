@@ -1,10 +1,10 @@
 // S15 Créer / modifier mon plat : photo, portions, ingrédients pesés -> kcal par portion, étapes
 import { useEffect, useRef, useState } from 'react'
-import { ImagePlus, Trash2 } from 'lucide-react'
+import { ImagePlus, Pencil, Trash2 } from 'lucide-react'
 import { BottomSheet, Button, Chip, FoodRow, IconButton, SearchField, Stepper, TextField } from '../ui.jsx'
-import { nutrientsFor, parseGrams, parseNumber, totals } from '../lib.js'
+import { maybeImage, nutrientsFor, parseGrams, parseNumber, totals } from '../lib.js'
 import { t } from '../i18n.js'
-import { deleteRecipe, getRecipe, saveRecipe, searchFoods, uploadRecipePhoto } from '../data.js'
+import { deleteRecipe, getRecipe, removePhoto, saveRecipe, searchFoods, shrink, uploadRecipePhoto } from '../data.js'
 import { go } from '../App.jsx'
 import TopBar from './TopBar.jsx'
 import { RecipePhoto, TAGS } from './recipeParts.jsx'
@@ -78,9 +78,14 @@ export default function RecipeEdit({ recipeId, q: route, notify }) {
   function pickPhoto(e) {
     const f = e.target.files?.[0]
     e.target.value = ''
-    if (!f?.type.startsWith('image/')) return
-    setPhotoFile(f)
-    setPreview(URL.createObjectURL(f))
+    if (!f || !maybeImage(f)) return setError(t('Cette photo ne peut pas être lue.'))
+    setError(null)
+    // decoded now so a HEIC shows in the preview too
+    shrink(f).then(jpg => { setPhotoFile(jpg); setPreview(URL.createObjectURL(jpg)) }, () => setError(t('Cette photo ne peut pas être lue.')))
+  }
+
+  function dropPhoto() {
+    setPhotoFile(null); setPreview(null); setPhotoPath(null)
   }
 
   async function save() {
@@ -94,6 +99,7 @@ export default function RecipeEdit({ recipeId, q: route, notify }) {
         id: recipeId ?? null, title: title.trim(), photo_path: path, servings, prep_minutes: mins == null ? null : Math.round(mins), tags,
         steps: stepsText.split('\n').map(s => s.trim()).filter(Boolean).map(text => ({ text })), source_url: imported?.source_url ?? null,
       }, rows.map(r => ({ food_id: r.food.id, grams: r.grams })))
+      if (loaded?.photo_path && loaded.photo_path !== path) removePhoto(loaded.photo_path).catch(() => {}) // replaced or removed
       notify(isNew ? t('Plat créé') : t('Plat enregistré'))
       go(`/recipe/${id}`)
     } catch (e) {
@@ -124,7 +130,9 @@ export default function RecipeEdit({ recipeId, q: route, notify }) {
       <input ref={fileRef} type="file" accept="image/*" hidden onChange={pickPhoto} />
       <button type="button" className="photo-pick" onClick={() => fileRef.current.click()} aria-label={preview || photoPath ? t('Changer la photo') : t('Ajouter une photo')}>
         {preview || photoPath ? <RecipePhoto path={photoPath} src={preview} alt="" /> : <span className="muted"><ImagePlus size={28} aria-hidden="true" /> {t('Ajouter une photo')}</span>}
+        {(preview || photoPath) && <span className="photo-edit" aria-hidden="true"><Pencil size={14} /> {t('Changer')}</span>}
       </button>
+      {(preview || photoPath) && <Button size="sm" variant="secondary" onClick={dropPhoto}><Trash2 size={16} aria-hidden="true" /> {t('Retirer la photo')}</Button>}
 
       <TextField id="title" label={t('Nom du plat')} value={title} onChange={e => setTitle(e.target.value)} error={touched ? errors.title : undefined} autoComplete="off" />
 

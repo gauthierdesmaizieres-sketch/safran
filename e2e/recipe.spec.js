@@ -78,10 +78,30 @@ test('F04-E3 edit keeps ingredients when the save fails, then succeeds', async (
 test('F04-E4 photo upload and delete dish', async ({ page }) => {
   await createDish(page, { title: 'Plat avec photo' })
   await page.locator('input[type=file]').setInputFiles({ name: 'p.png', mimeType: 'image/png', buffer: PNG })
+  await expect(page.locator('.photo-pick img')).toBeVisible()
   await page.getByRole('button', { name: 'Enregistrer le plat' }).click()
   await expect(page.getByRole('img', { name: 'Plat avec photo' })).toBeVisible()
   const { data: files } = await admin().storage.from('photos').list(user.id)
   expect(files.map(f => f.name)).toEqual([expect.stringMatching(/^recipe-.*\.jpg$/)])
+
+  // replace: the old file goes, the new one stays
+  await page.getByRole('button', { name: 'Modifier le plat' }).click()
+  await page.locator('input[type=file]').setInputFiles({ name: 'q.png', mimeType: 'image/png', buffer: PNG })
+  await expect(page.locator('.photo-pick img[src^="blob:"]')).toBeVisible()
+  await page.getByRole('button', { name: 'Enregistrer le plat' }).click()
+  await expect(page.getByRole('img', { name: 'Plat avec photo' })).toBeVisible()
+  const after = (await admin().storage.from('photos').list(user.id)).data.map(f => f.name)
+  expect(after).toHaveLength(1)
+  expect(after[0]).not.toBe(files[0].name)
+
+  // remove
+  await page.getByRole('button', { name: 'Modifier le plat' }).click()
+  await page.getByRole('button', { name: 'Retirer la photo' }).click()
+  await page.getByRole('button', { name: 'Enregistrer le plat' }).click()
+  await expect(page.getByRole('heading', { name: 'Plat avec photo' })).toBeVisible()
+  await expect(page.getByRole('img', { name: 'Plat avec photo' })).toHaveCount(0)
+  await expect.poll(async () => (await admin().storage.from('photos').list(user.id)).data.length).toBe(0)
+
   await page.getByRole('button', { name: 'Modifier le plat' }).click()
   await page.getByRole('button', { name: 'Supprimer ce plat' }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'Supprimer' }).click()
