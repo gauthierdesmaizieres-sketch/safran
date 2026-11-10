@@ -34,6 +34,11 @@ export default function Profile({ notify }) {
         <Button variant="secondary" onClick={() => go('/goals')}>{t('Modifier mes objectifs')}</Button>
       </section>
       <section className="card stack">
+        <p className="muted">{t('Comprendre la nutrition')}</p>
+        <p>{t('Protéines, glucides, fibres, acides gras, microbiote : des fiches détaillées et sourcées.')}</p>
+        <Button variant="secondary" onClick={() => go('/learn')}>{t('Lire les fiches')}</Button>
+      </section>
+      <section className="card stack">
         <div className="field">
           <label htmlFor="lang">{t('Langue')}</label>
           <select id="lang" className="select" value={LANG} onChange={e => setLang(e.target.value)}>

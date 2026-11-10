@@ -99,13 +99,13 @@ export default function FoodDetail({ foodId, q, notify }) {
       <section className="card stack" aria-live="polite">
         <p><span className="kcal-big">{now?.kcal ?? '–'}</span> kcal{grams ? ` · ${grams} g` : ''}</p>
         <NutritionLabel caption={t('Pour cette quantité')} rows={[
-          [t('Énergie'), now?.kcal, 'kcal'],
-          [t('Glucides'), now?.carbs, 'g'],
+          [t('Énergie'), now?.kcal, 'kcal', '#/learn/energie'],
+          [t('Glucides'), now?.carbs, 'g', '#/learn/glucides'],
           [t('dont sucres'), f(food.sugar_100g, grams), 'g'],
-          [t('Protéines'), now?.protein, 'g'],
-          [t('Lipides'), now?.fat, 'g'],
-          [t('Fibres'), f(food.fiber_100g, grams), 'g'],
-          [t('Sel'), f(food.salt_100g, grams), 'g'],
+          [t('Protéines'), now?.protein, 'g', '#/learn/proteines'],
+          [t('Lipides'), now?.fat, 'g', '#/learn/lipides'],
+          [t('Fibres'), f(food.fiber_100g, grams), 'g', '#/learn/fibres'],
+          [t('Sel'), f(food.salt_100g, grams), 'g', '#/learn/sel'],
         ]} />
         <p className="muted">{t('Pour 100 g : {kcal} kcal', { kcal: food.kcal_100g })}</p>
       </section>

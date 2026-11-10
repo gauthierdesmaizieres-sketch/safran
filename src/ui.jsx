@@ -184,14 +184,14 @@ export function TabBar({ items, current, onChange }) {
   )
 }
 
-// rows: [[label, value, unit]] — a real table so screen readers announce "Glucides, 12 g".
+// rows: [[label, value, unit, href?]] — a real table so screen readers announce "Glucides, 12 g". href links the label (to its nutrition sheet).
 export function NutritionLabel({ caption, rows }) {
   return (
     <table className="nutri">
       <caption>{caption}</caption>
       <tbody>
-        {rows.map(([label, value, unit]) => (
-          <tr key={label}><th scope="row">{label}</th><td>{value ?? '–'}{value == null ? '' : ` ${unit}`}</td></tr>
+        {rows.map(([label, value, unit, href]) => (
+          <tr key={label}><th scope="row">{href ? <a href={href}>{label}</a> : label}</th><td>{value ?? '–'}{value == null || !unit ? '' : ` ${unit}`}</td></tr>
         ))}
       </tbody>
     </table>

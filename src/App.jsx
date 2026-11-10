@@ -19,12 +19,13 @@ import { getActiveGoal } from './data.js'
 import Stub from './screens/Stub.jsx'
 import Welcome from './screens/Welcome.jsx'
 import Profile from './screens/Profile.jsx'
+import Learn from './screens/Learn.jsx'
 import { supabase } from './supabase.js'
 import { t } from './i18n.js'
 
 // Hash routes: #/diary?day=… | #/add/:meal?day=… | #/scan/:meal | #/review/:scanId | #/barcode/:meal | #/food/:id | #/new-food/:meal
 // #/goals (S01–S03 again from the profile) | #/recipes | #/recipe/new | #/recipe/:id | #/recipe/:id/edit | #/cook/:id?for=n
-// #/import?link=… (S16, also the Android share target, see main.jsx) | #/shopping (S17)
+// #/import?link=… (S16, also the Android share target, see main.jsx) | #/shopping (S17) | #/learn, #/learn/:id (S20)
 // flow screens carry ?meal=…&day=… so the entry lands where the user started
 export function go(path) { location.hash = path }
 function parse() {
@@ -89,6 +90,7 @@ export default function App() {
     case 'cook': page = <Cook recipeId={param} {...props} />; tab = null; break
     case 'import': page = <ImportRecipe key={route.q.get('link')} {...props} />; tab = null; break
     case 'shopping': page = <Shopping {...props} />; tab = null; break
+    case 'learn': page = <Learn key={param} sheetId={param} />; tab = null; break
     case 'goals': page = <Onboarding {...props} />; tab = null; break
     case 'progress': page = <Stub title={t('Progrès')} ids="S18" />; break
     case 'profile': page = <Profile {...props} />; break

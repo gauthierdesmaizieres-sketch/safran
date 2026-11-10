@@ -311,7 +311,17 @@ const ROWS = [
   ["Oublier le code d'accès", 'Zugangscode vergessen', 'Forget the access code'],
   ['Supprimer mon compte', 'Mein Konto löschen', 'Delete my account'],
   ['Valeurs nutritionnelles :', 'Nährwerte:', 'Nutrition values:'],
-  ['produits :', 'Produkte:', 'products:'],
+
+  // nutrition sheets (S20)
+  ['Comprendre la nutrition', 'Ernährung verstehen', 'Understanding nutrition'],
+  ['Protéines, glucides, fibres, acides gras, microbiote : des fiches détaillées et sourcées.', 'Proteine, Kohlenhydrate, Ballaststoffe, Fettsäuren, Mikrobiom: ausführliche Infoblätter mit Quellen.', 'Protein, carbs, fibre, fatty acids, microbiome: detailed sheets with sources.'],
+  ['Lire les fiches', 'Infoblätter lesen', 'Read the sheets'],
+  ['Ces fiches sont rédigées en français.', 'Diese Infoblätter sind auf Französisch.', 'These sheets are written in French.'],
+  ["Informations générales, qui ne remplacent pas l'avis d'un médecin ou d'un diététicien.", 'Allgemeine Informationen, die keinen Rat von Arzt oder Ernährungsberater ersetzen.', 'General information, not a substitute for advice from a doctor or dietitian.'],
+  ["Cette fiche n'existe pas.", 'Dieses Infoblatt gibt es nicht.', "This sheet doesn't exist."],
+  ['Voir toutes les fiches', 'Alle Infoblätter', 'See all sheets'],
+  ['Repères', 'Richtwerte', 'Key figures'],
+  ['Sources', 'Quellen', 'Sources'],  ['produits :', 'Produkte:', 'products:'],
   ['Confidentialité', 'Datenschutz', 'Privacy'],
   ['Supprimer le compte ?', 'Konto löschen?', 'Delete the account?'],
   ['Ton journal, tes plats, tes photos et ton compte seront effacés définitivement. Impossible de revenir en arrière.', 'Dein Tagebuch, deine Gerichte, deine Fotos und dein Konto werden endgültig gelöscht. Das lässt sich nicht rückgängig machen.', 'Your diary, dishes, photos and account will be erased for good. This cannot be undone.'],
